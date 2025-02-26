@@ -1,21 +1,28 @@
 package dev.slimevr.osc
 
-/**
- * VRChat OSCTracker documentation: https://docs.vrchat.com/docs/osc-trackers
- */
+import com.illposed.osc.transport.OSCPortOut
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.io.IOException
+import io.eiren.util.logging.LogManager
+
 class VRCOSCHandler (
-    private val test: Int = 0
-    //private val server: VRServer,
-    //private val config: VRCOSCConfig,
-    //private val computedTrackers: List<Tracker>,
-) : OSCHandler {
-    private val vrsystemTrackersAddresses = arrayOf(
-        "/tracking/vrsystem/head/pose",
-        "/tracking/vrsystem/leftwrist/pose",
-        "/tracking/vrsystem/rightwrist/pose",
-    )
+    private val server: String, // temporary
+) {
+    private var oscSender: OSCPortOut? = null
+    private var oscPortIn = 0
+    private var oscPortOut = 0
+    private var oscIp: InetAddress? = null
 
-    init {
-
+    fun updateOscSender(portOut: Int, ip: String) {
+        val addr = InetAddress.getByName(ip)
+        try {
+            oscSender = OSCPortOut(InetSocketAddress(addr, portOut))
+            LogManager.info("[VRCOSCHandler] Sending to port $portOut at address $ip")
+            oscIp = addr
+            oscSender?.connect()
+        } catch (e: IOException) {
+            return
+        }
     }
 }
