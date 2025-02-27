@@ -8,8 +8,11 @@ import io.eiren.util.logging.LogManager
 import java.lang.Thread.sleep
 
 fun main() {
-    val testHandler : VRCOSCHandler = VRCOSCHandler("test", listOf(Tracker("data/tracker1.txt")))
+    val bones = listOf("head", "hip", "chest")
+
+    val testHandler : VRCOSCHandler = VRCOSCHandler(bones)
     testHandler.updateOscSender(ip="127.0.0.1", portOut = 9000)
+    testHandler.receiveDataPath("data/motion")
 
     while (true) {
         testHandler.update()

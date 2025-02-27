@@ -7,6 +7,7 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.io.IOException
 import dev.slimevr.tracking.trackers.Tracker
+import dev.slimevr.tracking.trackers.Frame
 import io.eiren.util.collections.FastList
 import io.eiren.util.logging.LogManager
 import io.github.axisangles.ktmath.EulerAngles
@@ -15,15 +16,19 @@ import io.github.axisangles.ktmath.Quaternion
 import io.github.axisangles.ktmath.Vector3
 
 class VRCOSCHandler (
-    private val server: String, // temporary
-    private val Trackers: List<Tracker>,
+    private val bones : List<String>,
 ) {
     private var oscSender: OSCPortOut? = null
-    private var oscPortIn = 0
-    private var oscPortOut = 0
+    //private var oscPortIn = 0
+    //private var oscPortOut = 0
     private var oscIp: InetAddress? = null
-    private var oscMessage: OSCMessage? = null
+    //private var oscMessage: OSCMessage? = null
     private val oscArgs = FastList<Float?>(3)
+    private var frame : Frame = Frame(bones, "")
+
+    fun receiveDataPath(dataPath: String) {
+        frame = Frame(bones, dataPath)
+    }
 
     fun updateOscSender(portOut: Int, ip: String) {
         val addr = InetAddress.getByName(ip)
@@ -32,6 +37,10 @@ class VRCOSCHandler (
             LogManager.info("[VRCOSCHandler] Sending to port $portOut at address $ip")
             oscIp = addr
             oscSender?.connect()
+            /*
+            * Please implement what the program should do
+            * once trackers' sequence is over
+            * */
         } catch (e: IOException) {
             return
         }
@@ -39,8 +48,11 @@ class VRCOSCHandler (
     fun update() {
         val bundle = OSCBundle()
 
-        for (i in Trackers.indices) {
-            val data = Trackers[i].getValues()
+        for (i in bones.indices) {
+            var temp = getVRCOSCTrackersId(bones[i])
+            println("$temp")
+            val data = frame.getValues(bones[i])
+
             data ?: return
             oscArgs.clear()
             oscArgs.add(data[0])
@@ -48,25 +60,20 @@ class VRCOSCHandler (
             oscArgs.add(-data[2])
             bundle.addPacket(
                 OSCMessage(
-                    "/tracking/trackers/${i}/position",
+                    "/tracking/trackers/${getVRCOSCTrackersId(bones[i])}/position", // This address is wrong
                     oscArgs.clone(),
                 ),
             )
 
-            // Assume Rotation data is in Quaternion
-            val (_, x, y, z) = Quaternion(
-                data[3],
-                -data[4],
-                -data[5],
-                data[6],
-            ).toEulerAngles(EulerOrder.YXZ)
+            // Assume Rotation data is in Euler
+
             oscArgs.clear()
-            oscArgs.add(x * FastMath.RAD_TO_DEG)
-            oscArgs.add(y * FastMath.RAD_TO_DEG)
-            oscArgs.add(z * FastMath.RAD_TO_DEG)
+            oscArgs.add(data[3])
+            oscArgs.add(data[4])
+            oscArgs.add(data[5])
             bundle.addPacket(
                 OSCMessage(
-                    "/tracking/trackers/${i}/rotation",
+                    "/tracking/trackers/${getVRCOSCTrackersId(bones[i])}/rotation",
                     oscArgs.clone(),
                 ),
             )
@@ -79,6 +86,25 @@ class VRCOSCHandler (
             } catch (e: OSCSerializeException) {
                 LogManager.warning("[VRCOSCHandler] Error sending OSC message to VRChat: $e")
             }
+
+            if (frame.hasNextFrame()) frame.update()
+        }
+    }
+    private fun getVRCOSCTrackersId(trackerPosition: String): String {
+        // Needs to range from 1-8.
+        // Don't change as third party applications may rely
+        // on this for mapping trackers to body parts.
+        return when (trackerPosition) {
+            "hip" -> "1"
+            "leftFoot" -> "2"
+            "rightFoot" -> "3"
+            "leftUpLeg" -> "4"
+            "rightUpLeg" -> "5"
+            "chest" -> "6"
+            "leftUpperArm" -> "7"
+            "rightUpperArm" -> "8"
+            "head" -> "head"
+            else -> "-1"
         }
     }
 }
