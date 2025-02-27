@@ -7,7 +7,9 @@ plugins {
     kotlin("plugin.serialization")
     `java-library`
 }
-
+application {
+    mainClass.set("dev.slimevr.Main")
+}
 tasks.withType<KotlinCompile> {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)

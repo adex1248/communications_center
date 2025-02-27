@@ -82,6 +82,7 @@ class VRCOSCHandler (
             } catch (e: OSCSerializeException) {
                 LogManager.warning("[VRCOSCHandler] Error sending OSC message to VRChat: $e")
             }
+            println("update complete")
         }
     }
 }
