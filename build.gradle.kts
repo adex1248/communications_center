@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.10"
+    `java-library`
 }
 
 group = "org.example"
@@ -23,5 +24,12 @@ tasks.test {
     useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
