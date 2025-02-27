@@ -24,9 +24,6 @@ class VRCOSCHandler (
     private var oscIp: InetAddress? = null
     private var oscMessage: OSCMessage? = null
     private val oscArgs = FastList<Float?>(3)
-    init {
-        println("here")
-    }
 
     fun updateOscSender(portOut: Int, ip: String) {
         val addr = InetAddress.getByName(ip)
@@ -44,7 +41,7 @@ class VRCOSCHandler (
 
         for (i in Trackers.indices) {
             val data = Trackers[i].getValues()
-            if (data == null) return
+            data ?: return
             oscArgs.clear()
             oscArgs.add(data[0])
             oscArgs.add(data[1])
@@ -82,7 +79,6 @@ class VRCOSCHandler (
             } catch (e: OSCSerializeException) {
                 LogManager.warning("[VRCOSCHandler] Error sending OSC message to VRChat: $e")
             }
-            println("update complete")
         }
     }
 }
