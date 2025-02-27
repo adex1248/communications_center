@@ -1,6 +1,17 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization")
     `java-library`
+}
+
+tasks.withType<KotlinCompile> {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        freeCompilerArgs.set(listOf("-Xvalue-classes"))
+    }
 }
 
 group = "org.example"
@@ -8,7 +19,6 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    //maven { url = URL("https://mvnrepository.com/artifact/org.apache.commons/commons-lang3") }
 }
 
 dependencies {
@@ -18,6 +28,8 @@ dependencies {
     //implementation("org.apache.commons:commons-lang3:3.15.0")
     //implementation("org.apache.commons:commons-collections4:4.4")
     implementation("com.illposed.osc:javaosc-core:0.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }
 
 tasks.test {
