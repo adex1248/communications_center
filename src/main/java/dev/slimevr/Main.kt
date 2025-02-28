@@ -8,7 +8,8 @@ import io.eiren.util.logging.LogManager
 import java.lang.Thread.sleep
 
 fun main() {
-    val bones = listOf("head", "hip", "chest")
+    val bones = listOf("hip", "leftFoot", "rightFoot", "leftUpLeg",
+        "rightUpLeg", "chest", "leftUpperArm", "rightUpperArm", "head")
 
     val testHandler : VRCOSCHandler = VRCOSCHandler(bones)
     testHandler.updateOscSender(ip="127.0.0.1", portOut = 9000)
@@ -17,7 +18,7 @@ fun main() {
     while (true) {
         testHandler.update()
         try {
-            sleep(1) // 1000Hz
+            sleep(33) // Actual millisecond per frame: 33
         } catch (error: InterruptedException) {
             LogManager.info("VRServer thread interrupted")
             break

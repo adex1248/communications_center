@@ -49,8 +49,8 @@ class VRCOSCHandler (
         val bundle = OSCBundle()
 
         for (i in bones.indices) {
-            var temp = getVRCOSCTrackersId(bones[i])
-            println("$temp")
+            //var temp = getVRCOSCTrackersId(bones[i])
+            //println("$temp")
             val data = frame.getValues(bones[i])
 
             data ?: return
